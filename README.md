@@ -1,7 +1,7 @@
 # Webmon
 Webmon is a website availability monitoring tool, populating to a database, via a Kafka.
 
-## Descriptin
+## Description
 
 *Webmon* is a website availability monitoring tool. It pushes results to an PostgreSQL database. It also uses a Kafa topic in the middle to decouple to collection of the data and the storage of the metrics.
 
@@ -9,14 +9,35 @@ It tries to access the listed list of websites on a regular basis. It matches th
 Then it stored data in two steps:
 1. it pushes events to a Kafka topic, as a serialized JSON
 
-```b'{"rsp_tm": 42000, "status": 200, "url": "https://google.com", "check": true, "timestamp": "2023-04-16 09:02:42.068288+00:00", "source": "192.168.1.6"}'```
+```
+b'{"rsp_tm": 42000, "status": 200, "url": "https://google.com", "check": true, "timestamp": "2023-04-16 09:02:42.068288+00:00", "source": "192.168.1.6"}'
+```
 
 2. it retrieves the JSON from Kafka and inserts a row in a PostgreSQL table
 
-```INSERT INTO default_table (time_stamp, source, target, elasped_us, status, valid) VALUES (%s, %s, %s, %s, %s, %s)
-('2023-04-16 09:02:42.068288+00:00', '192.168.1.6', 'https://google.com', 42000, 200, True)```
+```
+INSERT INTO default_table (time_stamp, source, target, elasped_us, status, valid) VALUES (%s, %s, %s, %s, %s, %s)
+('2023-04-16 09:02:42.068288+00:00', '192.168.1.6', 'https://google.com', 42000, 200, True)
+```
 
-## Install
+## Install (short version)
+
+Download or clone this repository locally.
+
+Build and install *webmon* module locally:
+
+```shell
+python3 -m build
+python3 -m pip install .
+```
+
+Run *webmon*:
+
+```shell
+python3 -m webmon
+```
+
+## Install (with testing)
 
 Download or clone this repository locally.
 
@@ -29,7 +50,7 @@ python3 -m venv myvenv
 deactivate
 ```
 
-Build, install and test the *webmon* module locally:
+Build, install and test the **webmon** module locally:
 
 ```shell
 python3 -m build
@@ -51,6 +72,8 @@ Run *webmon*:
 ```shell
 python3 -m webmon
 ```
+
+## Configuration
 
 The first time you may need to generate and **edit** the configuration file:
 
@@ -94,10 +117,10 @@ python3 -m pip uninstall --yes webmon
 
 ## Extensions
 
-This is a work in progress.
+This is a *work in progress*.
 
 It can be extended in many ways:
-- make use of Schemas to generically decode/encode/transform from one data structure to another, eg. Kafka Connect
-- implement generic metric factories to allow to populate not only one database table, eg. Apache Flink
+- make use of Schemas to generically decode/encode/transform from one data structure to another, eg. **Kafka Connect**
+- implement generic metric factories to allow to populate not only one database table, eg. **Apache Flink**
 - make use of **systemd** to manage the underlying services
-- propose to generate graphs in an Observability Platform, eg. Grafana
+- propose to generate graphs in an Observability Platform, eg. **Grafana**
