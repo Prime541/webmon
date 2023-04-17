@@ -14,9 +14,8 @@ jobs:
 
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: false
       matrix:
-        python-version: ["3.9", "3.10"]
+        python-version: ["3.9"]
 
     steps:
     - uses: actions/checkout@v3
@@ -31,50 +30,108 @@ jobs:
     - name: Build the package
       run: |
         python -m build
-    - name: Install the package
+    - name: Install the package [local]
       run: |
         pip install .
+    - name: Uninstall the package [local]
+      run: |
+        pip uninstall -y .
+    - name: Upload the package
+      uses: actions/upload-artifact@v3
+      with:
+        name: dist
+        path: dist
+    - name: Download the package
+      uses: actions/download-artifact@v3
+      with:
+        name: dist
+    - name: Install the package [artifact]
+      run: |
+        pip install webmon --no-index --find-links dist
+    - name: Uninstall the package [artifact]
+      run: |
+        pip uninstall -y webmon
+
+  test:
+    needs: build
+
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.10", "3.11"]
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+    - name: Download the package
+      uses: actions/download-artifact@v3
+      with:
+        name: dist
+    - name: Install the package [artifact]
+      run: |
+        pip install webmon --no-index --find-links dist
+
     - name: Install dependencies for pytest
       run: |
         pip install pytest
     - name: Test with pytest
       run: |
-        pytest
-    - name: Install dependencies for pytest-cov
-      run: |
-        pip install pytest-cov
-    - name: Test with pytest
-      run: |
-        pytest --cov --cov-report=html:htmlcov -vv
-    - name: Archive code coverage results
-      uses: actions/upload-artifact@v3
+        pytest -vv
+
+  quality:
+    needs: build
+
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.10", "3.11"]
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
       with:
-        name: code-coverage-report
-        path: htmlcov
-    - name: Install dependencies for pylint
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
       run: |
-        pip install pylint
+        python -m pip install --upgrade pip
+    - name: Download the package
+      uses: actions/download-artifact@v3
+      with:
+        name: dist
+    - name: Install the package[test] [artifact]
+      run: |
+        pip install webmon[test] --no-index --find-links dist
+
     - name: Lint with pylint
       run: |
         pylint --disable=line-too-long $(git ls-files '*.py')
-    - name: Install dependencies for bandit
-      run: |
-        pip install bandit
     - name: Lint with bandit
       run: |
-        bandit -r src tests
-    - name: Install dependencies for flake8
+        bandit -r $(git ls-files '*.py')
+    - name: Lint with flake8-quotes
       run: |
-        pip install flake8
+        flake8 --ignore=E501 $(git ls-files '*.py')
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: Install dependencies for flake8-quotes
+
+    - name: Test with pytest-cov
       run: |
-        pip install flake8-quotes
-    - name: Lint with flake8-quotes
-      run: |
-        flake8 --ignore=E501 src tests
+        pytest --cov --cov-report=html:htmlcov
+    - name: Archive code coverage results
+      uses: actions/upload-artifact@v3
+      with:
+        name: htmlcov
+        path: htmlcov
