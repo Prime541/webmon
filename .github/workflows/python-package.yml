@@ -70,7 +70,7 @@ jobs:
 
 
   test:
-    needs: build
+    needs: build-dist
 
     runs-on: ubuntu-latest
     strategy:
@@ -111,7 +111,7 @@ jobs:
 
 
   quality:
-    needs: build
+    needs: build-dist
 
     runs-on: ubuntu-latest
 
