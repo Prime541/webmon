@@ -32,22 +32,12 @@ jobs:
         pip install .
     - name: Uninstall the package [local]
       run: |
-        pip uninstall -y webmon
+        pip uninstall --yes webmon
     - name: Upload the package
       uses: actions/upload-artifact@v3
       with:
         name: dist
         path: dist
-    - name: Download the package
-      uses: actions/download-artifact@v3
-      with:
-        name: dist
-    - name: Install the package [artifact]
-      run: |
-        pip install webmon --no-index --find-links dist
-    - name: Uninstall the package [artifact]
-      run: |
-        pip uninstall -y webmon
 
   test:
     needs: build
@@ -71,7 +61,18 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: dist
-    - name: Install the package [artifact]
+    - name: Check artifact
+      run: |
+        pwd
+        ls -lhA
+        ls dist*
+    - name: Install the package
+      run: |
+        pip install webmon --no-index --find-links dist
+    - name: Uninstall the package
+      run: |
+        pip uninstall --yes webmon
+    - name: Reinstall the package
       run: |
         pip install webmon --no-index --find-links dist
 
@@ -104,7 +105,7 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: dist
-    - name: Install the package[test] [artifact]
+    - name: Install the package[test]
       run: |
         pip install webmon[test] --no-index --find-links dist
 
@@ -127,7 +128,7 @@ jobs:
     - name: Test with pytest-cov
       run: |
         pytest --cov --cov-report=html:htmlcov
-    - name: Archive code coverage results
+    - name: Upload code coverage results
       uses: actions/upload-artifact@v3
       with:
         name: htmlcov
