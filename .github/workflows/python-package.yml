@@ -64,13 +64,13 @@ jobs:
         path: dist
     - name: Install the package
       run: |
-        pip install webmon --no-index --find-links dist
+        pip install dist/webmon-*.tar.gz
     - name: Uninstall the package
       run: |
         pip uninstall --yes webmon
     - name: Reinstall the package
       run: |
-        pip install webmon --no-index --find-links dist
+        pip install dist/webmon-*.tar.gz
 
     - name: Install dependencies for pytest
       run: |
@@ -100,7 +100,7 @@ jobs:
         path: dist
     - name: Install the package[test]
       run: |
-        pip install webmon[test] --no-index --find-links dist
+        pip install $(echo dist/webmon-*.tar.gz)[test]
 
     - name: Lint with pylint
       run: |
