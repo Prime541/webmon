@@ -27,14 +27,55 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install flake8 pytest
-        python -m pip install .[test]
+        pip install httpx
+        pip install kafka-python
+        pip install psycopg2
+        pip install pyyaml
+    - name: Install dependencies for pytest
+      run: |
+        pip install pytest
+    - name: Test with pytest
+      run: |
+        pytest
+    - name: Install dependencies for pytest-cov
+      run: |
+        pip install pytest-cov
+    - name: Test with pytest
+      run: |
+        pytest --cov --cov-report=html:htmlcov -vv
+    - name: Install dependencies for pylint
+      run: |
+        pip install pylint
+    - name: Lint with pylint
+      run: |
+        pylint --disable=line-too-long $(git ls-files '*.py')
+    - name: Install dependencies for bandit
+      run: |
+        pip install bandit
+    - name: Lint with bandit
+      run: |
+        bandit -r src tests
+    - name: Install dependencies for flake8
+      run: |
+        pip install flake8
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: Test with pytest
+    - name: Install dependencies for flake8-quotes
       run: |
-        pytest
+        pip install flake8-quotes
+    - name: Lint with flake8-quotes
+      run: |
+        flake8 --ignore=E501 src tests
+    - name: Build the package
+      run: |
+        python3 -m build
+    - name: Build the package without python3
+      run: |
+        build
+    - name: Install the package
+      run: |
+        pip install -e .[test]
