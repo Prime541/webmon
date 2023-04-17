@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Notepad++
+*.bak
+
+# Webmon
+config.yaml

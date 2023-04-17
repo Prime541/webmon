@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "webmon"
+version = "0.0.1"
+description = "A websites availability monitoring tool, pushing metrics to PostgreSQL, through Kafka"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {file = "LICENSE"}
+keywords = ["Kafka", "PostgreSQL", "HTTP", "monitoring", "availability"]
+authors = [
+  { name="Guillaume GIFFARD", email="prime541@hotmail.com" },
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Topic :: Database",
+    "Topic :: Internet",
+    "Topic :: Scientific/Engineering :: Interface Engine/Protocol Translator",
+    "Topic :: Utilities",
+]
+dependencies = [
+    "httpx",
+    "kafka-python",
+    "psycopg2",
+    "pyyaml",
+]
+
+[project.optional-dependencies]
+test = [
+    "bandit",
+    "flake8",
+    "flake8-quotes",
+    "pylint",
+    "pytest",
+    "pytest-cov",
+]
+
+[project.urls]
+repository = "https://github.com/Prime541/webmon"
+
+[tool.pytest.ini_options]
+addopts = [
+    "--import-mode=importlib",
+]
