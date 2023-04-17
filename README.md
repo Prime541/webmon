@@ -1,22 +1,24 @@
 # Webmon
-Webmon is a website availability monitoring tool, populating to a database, via a Kafka.
+Webmon is a website availability monitoring tool, populating a database, via a Kafka.
 
 ## Description
 
 *Webmon* is a website availability monitoring tool. It pushes results to an PostgreSQL database. It also uses a Kafa topic in the middle to decouple to collection of the data and the storage of the metrics.
 
-It tries to access the listed list of websites on a regular basis. It matches the content of the response against a regular expression dedicate to each website.
-Then it stored data in two steps:
+It tries to access the listed list of websites on a regular basis. It matches the content of the responses against a regular expression dedicate to each website.
+Then it stores data in two steps:
 1. it pushes events to a Kafka topic, as a serialized JSON
 
 ```
-b'{"rsp_tm": 42000, "status": 200, "url": "https://google.com", "check": true, "timestamp": "2023-04-16 09:02:42.068288+00:00", "source": "192.168.1.6"}'
+b'{"rsp_tm": 42000, "status": 200, "url": "https://google.com", "check": true, 
+"timestamp": "2023-04-16 09:02:42.068288+00:00", "source": "192.168.1.6"}'
 ```
 
 2. it retrieves the JSON from Kafka and inserts a row in a PostgreSQL table
 
 ```
-INSERT INTO default_table (time_stamp, source, target, elasped_us, status, valid) VALUES (%s, %s, %s, %s, %s, %s)
+INSERT INTO default_table (time_stamp, source, target, elasped_us, status, valid)
+VALUES (%s, %s, %s, %s, %s, %s)
 ('2023-04-16 09:02:42.068288+00:00', '192.168.1.6', 'https://google.com', 42000, 200, True)
 ```
 
@@ -24,14 +26,14 @@ INSERT INTO default_table (time_stamp, source, target, elasped_us, status, valid
 
 Download or clone this repository locally.
 
-Build and install *webmon* module locally:
+Build and install the module locally:
 
 ```shell
 python3 -m build
 python3 -m pip install .
 ```
 
-Run *webmon*:
+Run webmon:
 
 ```shell
 python3 -m webmon
@@ -67,7 +69,7 @@ You can display the results of the code coverage in your web browser:
 
 `file:///path/to/repository/htmlcov/index.html`
 
-Run *webmon*:
+Run webmon:
 
 ```shell
 python3 -m webmon
