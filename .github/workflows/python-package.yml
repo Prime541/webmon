@@ -13,16 +13,13 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.9"]
 
     steps:
     - uses: actions/checkout@v3
-    - name: Set up Python ${{ matrix.python-version }}
+    - name: Set up Python 3.9
       uses: actions/setup-python@v3
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: "3.9"
     - name: Install dependencies for Build
       run: |
         python -m pip install --upgrade pip
@@ -35,7 +32,7 @@ jobs:
         pip install .
     - name: Uninstall the package [local]
       run: |
-        pip uninstall -y .
+        pip uninstall -y webmon
     - name: Upload the package
       uses: actions/upload-artifact@v3
       with:
