@@ -177,9 +177,12 @@ jobs:
     - name: Install the package
       run: |
         pip install dist/webmon-*.tar.gz
-    - name: Retrieve the secret config.yaml
+    - name: Retrieve the secret files
       run: |
         printf '%s' "${{ secrets.CONFIG_YAML_DEFAULT }}" > config.yaml
+        printf '%s' "${{ secrets.CA_PEM_DEFAULT }}" > ca.pem
+        printf '%s' "${{ secrets.SERVICE_CERT_DEFAULT }}" > service.cert
+        printf '%s' "${{ secrets.SERVICE_KEY_DEFAULT }}" > service.key
     - name: Run webmon for 1m
       run: |
         timeout --signal INT --preserve-status --kill-after 10s 1m \
