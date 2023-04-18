@@ -3,18 +3,18 @@ Webmon is a website availability monitoring tool, populating a database, via a K
 
 ## Description
 
-*Webmon* is a website availability monitoring tool. It pushes results to an PostgreSQL database. It also uses a Kafa topic in the middle to decouple to collection of the data and the storage of the metrics.
+*Webmon* is a website availability monitoring tool. It pushes results to a PostgreSQL database. It also uses a Kafa topic in the middle to decouple to collection of data and the storage in database.
 
-It tries to access the listed list of websites on a regular basis. It matches the content of the responses against a regular expression dedicate to each website.
-Then it stores data in two steps:
-1. it pushes events to a Kafka topic, as a serialized JSON
+It sends HTTP requests to a list of websites on a regular basis. It matches the content of the responses against a regular expression dedicated to each website.
+Then it saves the data in two steps:
+1. it pushes metrics to a Kafka topic, in a serialized JSON
 
 ```
 b'{"rsp_tm": 42000, "status": 200, "url": "https://google.com", "check": true, 
 "timestamp": "2023-04-16 09:02:42.068288+00:00", "source": "192.168.1.6"}'
 ```
 
-2. it retrieves the JSON from Kafka and inserts a row in a PostgreSQL table
+2. it retrieves the JSON from Kafka and inserts it in a PostgreSQL table as a row
 
 ```
 INSERT INTO default_table (time_stamp, source, target, elasped_us, status, valid)
@@ -77,7 +77,7 @@ python3 -m webmon
 
 ## Configuration
 
-The first time you may need to generate and **edit** the configuration file:
+The first time you may need to generate and **edit** a configuration file:
 
 ```shell
 python3 -m webmon --generate-config config.yaml
@@ -125,9 +125,9 @@ pg-table:  "default_table"
 #      period: 10
 ```
 
-After you **edit** it with your settings, you can monitor websites by listing them in the config file and/or in the command line.
+After you have **edited** your settings, you can monitor some websites by listing them in the config file and/or in the command line.
 
-- in config.yaml:
+- in the config.yaml:
 
 ```yaml
 websites:
@@ -143,11 +143,11 @@ websites:
 
 ```shell
 python3 -m webmon --config config.yaml \
-        --website-regex-period "https://www.google.com" "<title>Google</title>" 42 \
-        --website-regex-period "https://google.com" "<title>Google</title>" 10
+    --website-regex-period "https://www.google.com" "<title>Google</title>" 42 \
+    --website-regex-period "https://google.com" "<title>Google</title>" 10
 ```
 
-The command line overrides the websites from the configuration with the same 'url'.
+The websites in the command line overrides the websites from the configuration if they have the same 'url'.
 
 Please consult the help content:
 
@@ -165,8 +165,8 @@ python3 -m pip uninstall --yes webmon
 
 This is a *work in progress*.
 
-It can be extended in many ways:
-- make use of Schemas to generically decode/encode/transform from one data structure to another, eg. **Kafka Connect**
-- implement generic metric factories to allow to populate not only one database table, eg. **Apache Flink**
-- make use of **systemd** to manage the underlying services
+It can be extended in several ways:
+- use Schemas to generically decode/encode/transform data from one structure to another, eg. **Apache Flink**, **Kafka Connect**
+- propose more providers on all ends, eg. **HTTP POST**, **Couchbase**, **M3DB**
+- use **systemd** to manage the services of *webmon*
 - propose to generate graphs in an Observability Platform, eg. **Grafana**
