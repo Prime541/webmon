@@ -151,7 +151,7 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
   end-to-end:
-    if: github.event_name == 'push' && github.ref_name == 'master'
+    if: github.event_name == 'push'
     needs: test
 
     runs-on: ubuntu-latest
