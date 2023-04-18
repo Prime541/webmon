@@ -39,6 +39,7 @@ jobs:
       run: |
         pytest --cov --cov-report=html:htmlcov -vv
     - name: Upload code coverage results
+      if: always()
       uses: actions/upload-artifact@v3
       with:
         name: htmlcov
@@ -148,3 +149,53 @@ jobs:
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+  end-to-end:
+    if: github.branch == 'master':
+    needs: test
+
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9"]
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+    - name: Download the package
+      uses: actions/download-artifact@v3
+      with:
+        name: dist
+        path: dist
+    - name: Install the package
+      run: |
+        pip install dist/webmon-*.tar.gz
+    - name: Retrieve the secret config.yaml
+      run: |
+        printf '%s' "${{ secrets.CONFIG_YAML_DEFAULT }}" > config.yaml
+    - name: Run webmon for 1m
+      run: |
+        timeout --signal INT --preserve-status --kill-after 10s 1m \
+          python3 -m webmon -v \
+            --website-regex-period "https://www.google.com" "<title>Google</title>" 2 \
+            --website-regex-period "https://google.com" "<title>Google</title>" 3 \
+            --website-regex-period "https://bing.com" "<title>Bing</title>" 5 \
+            --website-regex-period "https://yahoo.com" "<title>Bing</title>" 7 \
+          2>&1 | \
+        tee webmon.log | grep -v '^INFO:kafka'
+        RC=$?
+        echo RC=$RC
+        [ $RC = 0 ] || [ $RC = 130 ]
+    - name: Upload webmon.log
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: webmon.log
+        path: webmon.log
