@@ -83,7 +83,49 @@ The first time you may need to generate and **edit** the configuration file:
 python3 -m webmon --generate-config config.yaml
 ```
 
-Then, you can monitor websites by listing them in the config file and/or in the command line.
+Here is the generated *config.yaml* file:
+
+```yaml
+# See: https://kafka-python.readthedocs.io/en/master/apidoc/KafkaProducer.html
+kafka-producer:
+    bootstrap_servers: "kafka-ip:9092"
+    security_protocol: "SSL"
+    ssl_cafile: "/path/to/ca.pem"
+    ssl_certfile: "/path/to/service.cert"
+    ssl_keyfile: "/path/to/service.key"
+    # Settings for batches of messages:
+    #batch_size: 16384
+    #linger_ms: 0
+    #compression_type:
+
+# See: https://kafka-python.readthedocs.io/en/master/apidoc/KafkaConsumer.html
+kafka-consumer:
+    bootstrap_servers: "kafka-ip:9092"
+    security_protocol: "SSL"
+    ssl_cafile: "/path/to/ca.pem"
+    ssl_certfile: "/path/to/service.cert"
+    ssl_keyfile: "/path/to/service.key"
+    client_id: "CONSUMER_CLIENT_ID"
+    group_id: "CONSUMER_GROUP_ID"
+
+# See: https://www.psycopg.org/docs/module.html
+pg-connect:
+    dsn: "postgres://user:password@host-ip:5432/db-name?sslmode=require"
+
+kafka-topic: "default_topic"
+
+pg-table:  "default_table"
+
+#websites:
+#    - url: "https://www.google.com"
+#      regex: "<title>Google</title>"
+#      period: 120
+#    - url: "https://google.com"
+#      regex: "<title>Google</title>"
+#      period: 10
+```
+
+After you **edit** it with your settings, you can monitor websites by listing them in the config file and/or in the command line.
 
 - in config.yaml:
 
@@ -93,7 +135,7 @@ websites:
       regex: "<title>Google</title>"
       period: 120
     - url: "https://google.com"
-      regex: "<title>Google</title>"
+      regex: "<title>Bing</title>"
       period: 10
 ```
 
@@ -101,9 +143,11 @@ websites:
 
 ```shell
 python3 -m webmon --config config.yaml \
-        --website-regex-period "https://www.google.com" "<title>Google</title>" 120 \
-        --website-regex-period "https://google.com" "<title>Google</title>" 120
+        --website-regex-period "https://www.google.com" "<title>Google</title>" 42 \
+        --website-regex-period "https://google.com" "<title>Google</title>" 10
 ```
+
+The command line overrides the websites from the configuration with the same 'url'.
 
 Please consult the help content:
 
